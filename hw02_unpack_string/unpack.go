@@ -55,6 +55,9 @@ func Unpack(str string) (string, error) {
 			}
 		}
 		if unicode.IsLetter(r[i]) || unicode.IsSpace(r[i]) {
+			if escape {
+				return "", ErrInvalidString
+			}
 			if i+1 != len(r) {
 				if digit, err := strconv.Atoi(string(r[i+1])); err == nil {
 					b.WriteString(strings.Repeat(string(r[i]), digit))
