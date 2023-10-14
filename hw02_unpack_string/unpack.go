@@ -46,11 +46,9 @@ func Unpack(str string) (string, error) {
 					b.WriteRune(r[i])
 				}
 				escape = false
-			} else {
-				if i+1 != len(r) {
-					if i == 0 || unicode.IsDigit(r[i+1]) {
-						return "", ErrInvalidString
-					}
+			} else if i+1 != len(r) {
+				if i == 0 || unicode.IsDigit(r[i+1]) {
+					return "", ErrInvalidString
 				}
 			}
 		}
