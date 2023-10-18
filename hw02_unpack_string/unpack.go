@@ -49,24 +49,10 @@ func Unpack(str string) (string, error) {
 			} else {
 				b.WriteRune(r[i])
 			}
-		case "unknown":
-			return "", ErrInvalidString
 		}
 	}
 	return b.String(), nil
 }
-
-// func getType(r rune) string {
-// 	if string(r) == "\\" {
-// 		return "backslash"
-// 	} else if unicode.IsDigit(r) {
-// 		return "digit"
-// 	} else if unicode.IsLetter(r) || unicode.IsSpace(r) {
-// 		return "char"
-// 	} else {
-// 		return "unknown"
-// 	}
-// }
 
 func getType(r rune) string {
 	switch {
@@ -77,7 +63,7 @@ func getType(r rune) string {
 	case unicode.IsLetter(r) || unicode.IsSpace(r):
 		return "char"
 	default:
-		return "unknown"
+		return ""
 	}
 }
 
