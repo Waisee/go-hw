@@ -11,20 +11,16 @@ var ErrInvalidString = errors.New("invalid string")
 
 func Unpack(str string) (string, error) {
 	var b strings.Builder
-	backslash := "\\"
 	escape := false
 
 	r := []rune(str)
 
 	for i := 0; i < len(r); i++ {
-		if string(r[i]) == backslash {
+		switch getType(r[i]) {
+		case "backslash":
 			if escape {
 				if i+1 != len(r) {
-					if digit, err := strconv.Atoi(string(r[i+1])); err == nil {
-						b.WriteString(strings.Repeat(string(r[i]), digit))
-					} else {
-						b.WriteRune(r[i])
-					}
+					checkAndWrite(&b, r[i], r[i+1])
 				} else {
 					b.WriteRune(r[i])
 				}
@@ -33,42 +29,62 @@ func Unpack(str string) (string, error) {
 				escape = true
 				continue
 			}
-		}
-		if unicode.IsDigit(r[i]) {
+		case "digit":
 			if escape {
 				if i+1 != len(r) {
-					if digit, err := strconv.Atoi(string(r[i+1])); err == nil {
-						b.WriteString(strings.Repeat(string(r[i]), digit))
-					} else {
-						b.WriteRune(r[i])
-					}
+					checkAndWrite(&b, r[i], r[i+1])
 				} else {
 					b.WriteRune(r[i])
 				}
 				escape = false
-			} else if i+1 != len(r) {
-				if i == 0 || unicode.IsDigit(r[i+1]) {
-					return "", ErrInvalidString
-				}
+			} else if i+1 != len(r) && (i == 0 || unicode.IsDigit(r[i+1])) {
+				return "", ErrInvalidString
 			}
-		}
-		if unicode.IsLetter(r[i]) || unicode.IsSpace(r[i]) {
+		case "char":
 			if escape {
 				return "", ErrInvalidString
 			}
 			if i+1 != len(r) {
-				if digit, err := strconv.Atoi(string(r[i+1])); err == nil {
-					b.WriteString(strings.Repeat(string(r[i]), digit))
-				} else {
-					b.WriteString(string(r[i]))
-				}
+				checkAndWrite(&b, r[i], r[i+1])
 			} else {
-				b.WriteString(string(r[i]))
+				b.WriteRune(r[i])
 			}
+		case "unknown":
+			return "", ErrInvalidString
 		}
 	}
-	if escape {
-		return "", ErrInvalidString
-	}
 	return b.String(), nil
+}
+
+// func getType(r rune) string {
+// 	if string(r) == "\\" {
+// 		return "backslash"
+// 	} else if unicode.IsDigit(r) {
+// 		return "digit"
+// 	} else if unicode.IsLetter(r) || unicode.IsSpace(r) {
+// 		return "char"
+// 	} else {
+// 		return "unknown"
+// 	}
+// }
+
+func getType(r rune) string {
+	switch {
+	case string(r) == "\\":
+		return "backslash"
+	case unicode.IsDigit(r):
+		return "digit"
+	case unicode.IsLetter(r) || unicode.IsSpace(r):
+		return "char"
+	default:
+		return "unknown"
+	}
+}
+
+func checkAndWrite(b *strings.Builder, currentRune rune, nextRune rune) {
+	if digit, err := strconv.Atoi(string(nextRune)); err == nil {
+		b.WriteString(strings.Repeat(string(currentRune), digit))
+	} else {
+		b.WriteRune(currentRune)
+	}
 }
