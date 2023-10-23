@@ -10,26 +10,30 @@ type Word struct {
 	count int
 }
 
-var wordsSlice []Word
-
-func Top10(text string) []string {
-	for _, value := range strings.Fields(text) {
-		value = strings.TrimSpace(value)
-		found := false
-		for i, word := range wordsSlice {
-			if word.word == value {
-				wordsSlice[i].count++
-				found = true
-				break
-			}
+func (w *Word) Count(value string) {
+	value = strings.TrimSpace(value)
+	found := false
+	for i, word := range wordsSlice {
+		if word.word == value {
+			wordsSlice[i].count++
+			found = true
+			break
 		}
-		if found {
-			continue
-		}
+	}
+	if !found {
 		wordsSlice = append(wordsSlice, Word{
 			value,
 			1,
 		})
+	}
+}
+
+var wordsSlice []Word
+
+func Top10(text string) []string {
+	var w Word
+	for _, value := range strings.Fields(text) {
+		w.Count(value)
 	}
 	sort.Slice(wordsSlice, func(i, j int) bool {
 		if wordsSlice[i].count != wordsSlice[j].count {
