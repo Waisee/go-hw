@@ -27,7 +27,6 @@ func Top10(text string) []string {
 	if len(keys) > 10 {
 		result := keys[:10]
 		return result
-	} else {
-		return keys
 	}
+	return keys
 }
