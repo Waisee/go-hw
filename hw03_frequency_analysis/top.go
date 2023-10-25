@@ -5,50 +5,29 @@ import (
 	"strings"
 )
 
-type Word struct {
-	word  string
-	count int
-}
-
-func (w *Word) Count(value string) {
-	value = strings.TrimSpace(value)
-	found := false
-	for i, word := range wordsSlice {
-		if word.word == value {
-			wordsSlice[i].count++
-			found = true
-			break
-		}
-	}
-	if !found {
-		wordsSlice = append(wordsSlice, Word{
-			value,
-			1,
-		})
-	}
-}
-
-var wordsSlice []Word
-
 func Top10(text string) []string {
-	var w Word
+	wordsMap := make(map[string]int)
 	for _, value := range strings.Fields(text) {
-		w.Count(value)
+		value = strings.TrimSpace(value)
+		wordsMap[value]++
 	}
-	sort.Slice(wordsSlice, func(i, j int) bool {
-		if wordsSlice[i].count != wordsSlice[j].count {
-			return wordsSlice[i].count > wordsSlice[j].count
+
+	var keys []string
+	for key := range wordsMap {
+		keys = append(keys, key)
+	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		if wordsMap[keys[i]] == wordsMap[keys[j]] {
+			return strings.Compare(keys[i], keys[j]) < 0
 		}
-		return wordsSlice[i].word < wordsSlice[j].word
+		return wordsMap[keys[i]] > wordsMap[keys[j]]
 	})
 
-	result := make([]string, 0, 10)
-	for j := range wordsSlice {
-		result = append(result, wordsSlice[j].word)
-		if len(result) == 10 {
-			break
-		}
+	if len(keys) > 10 {
+		result := keys[:10]
+		return result
+	} else {
+		return keys
 	}
-
-	return result
 }
