@@ -12,7 +12,7 @@ func Top10(text string) []string {
 		wordsMap[value]++
 	}
 
-	var keys []string
+	keys := make([]string, 0, len(wordsMap))
 	for key := range wordsMap {
 		keys = append(keys, key)
 	}
